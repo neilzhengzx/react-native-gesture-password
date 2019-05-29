@@ -1,19 +1,22 @@
 import * as helper from './helper'
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
 import {
     StyleSheet,
-    Dimensions,
     PanResponder,
     View,
-    Text
+    Text,
+    Dimensions,
+    I18nManager
 } from 'react-native'
 import Line from './line'
 import Circle from './circle'
+import PropTypes from 'prop-types';
 
-const Width = Dimensions.get('window').width
-const Height = Dimensions.get('window').height
-const Top = (Height - Width)/2.0 * 1.5
-const Radius = Width / 10
+const Width = Dimensions.get('window').width;
+const Height = Dimensions.get('window').height;
+const isVertical = Height > Width;
+const Top = isVertical ? (Height - Width)/2.0 * 1.25 : 10;
+const Radius = isVertical ? Width / 10 : Width / 25;
 
 export default class GesturePassword extends Component {
     constructor(props) {
@@ -79,7 +82,7 @@ export default class GesturePassword extends Component {
                 <View style={styles.board} {...this._panResponder.panHandlers}>
                     {this.renderCircles()}
                     {this.renderLines()}
-                    <Line ref='line' color={color} />
+                    <Line ref='line' color={ this.props.transparentLine ? '#00000000' : color} />
                 </View>
 
                 {this.props.children}
@@ -107,10 +110,11 @@ export default class GesturePassword extends Component {
 
     renderLines() {
         let array = [], color;
-        let { status, wrongColor, rightColor } = this.props;
+        let { status, wrongColor, rightColor, transparentLine } = this.props;
 
         this.state.lines.forEach(function(l, i) {
             color = status === 'wrong' ? wrongColor : rightColor;
+            color = transparentLine ? '#00000000' : color;
 
             array.push(
                 <Line key={'l_' + i} color={color} start={l.start} end={l.end} />
@@ -169,8 +173,8 @@ export default class GesturePassword extends Component {
     }
 
     onStart(e, g) {
-        let x = e.nativeEvent.pageX;
-        let y = e.nativeEvent.pageY - Top;
+        let x = isVertical ? e.nativeEvent.pageX : e.nativeEvent.pageX - Width/3.4;
+        let y = isVertical ? e.nativeEvent.pageY - Top/1.25 : e.nativeEvent.pageY - 30;
 
         let lastChar = this.getTouchChar({x, y});
         if ( lastChar ) {
@@ -196,8 +200,8 @@ export default class GesturePassword extends Component {
     }
 
     onMove(e, g) {
-        let x = e.nativeEvent.pageX;
-        let y = e.nativeEvent.pageY - Top;
+        let x = isVertical ? e.nativeEvent.pageX : e.nativeEvent.pageX - Width/3.4;
+        let y = isVertical ? e.nativeEvent.pageY - Top/1.25 : e.nativeEvent.pageY - 30;
 
         if ( this.isMoving ) {
             this.refs.line.setNativeProps({end: {x, y}});
@@ -270,7 +274,7 @@ export default class GesturePassword extends Component {
 
 GesturePassword.propTypes = {
     message: PropTypes.string,
-    normalColor: PropTypes.string, 
+    normalColor: PropTypes.string,
     rightColor: PropTypes.string,
     wrongColor: PropTypes.string,
     status: PropTypes.oneOf(['right', 'wrong', 'normal']),
@@ -281,7 +285,7 @@ GesturePassword.propTypes = {
     allowCross: PropTypes.bool,
     innerCircle: PropTypes.bool,
     outerCircle: PropTypes.bool
-}
+};
 
 GesturePassword.defaultProps = {
     message: '',
@@ -293,23 +297,25 @@ GesturePassword.defaultProps = {
     allowCross: false,
     innerCircle: true,
     outerCircle: true
-}
+};
 
 const styles = StyleSheet.create({
     frame: {
+        flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
         backgroundColor: '#292B38'
     },
     board: {
+        flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
         position: 'absolute',
-        left: 0,
-        top: Top,
+        left: isVertical ? 0 : Width/3.4,
+        top: isVertical ? Top/1.5 : 30,
         width: Width,
         height: Height
     },
     message: {
         position: 'absolute',
         left: 0,
-        top: Top / 2.2,
+        top: 20,
         width: Width,
         height: Top / 3,
         alignItems: 'center',

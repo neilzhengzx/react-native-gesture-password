@@ -10,6 +10,7 @@ A gesture password component for React Native. It supports both iOS and Android 
 
 ```javascript
 npm install react-native-gesture-password --save
+npm install prop-types    --save
 ```
 
 ## Properties
@@ -44,6 +45,10 @@ Use this color to render when status !== 'wrong'.
 ### wrongColor (string)
 
 Use this color to render when status === 'wrong'.
+
+### transparentLine (boolean)
+
+True for transparent line.
 
 ### interval (number)
 
