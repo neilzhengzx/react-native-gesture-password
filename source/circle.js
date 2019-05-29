@@ -17,7 +17,13 @@ export default class Circle extends Component {
 
                 {inner && <View style={[
                             !outer && styles.inner,
-                            {width: 2 * r / 3, height: 2 * r / 3, borderRadius: r / 3},
+                            {
+                                width: 2 * r / 3, 
+                                height: 2 * r / 3, 
+                                borderRadius: r / 3, 
+                                borderWidth: 0.1, 
+                                borderColor: '#ffffff00'
+                            },
                             fill && {backgroundColor: color}
                         ]} />}
             </View>
